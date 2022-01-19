@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+
+if [[ "$1" == "-h" ]] || [[ "$1" == "--help" ]]
+then
+	echo "Bash script wrapper for compiling dart."
+	echo
+	echo "Usage: dart-compile"
+	echo
+	echo "Notes:"
+	echo "Can only be used inside a dart project."
+	exit 0
+fi
+
+
+if [[ ! -d "bin/" ]]
+then
+	echo "The bin/ directory does not exist."
+	echo "Make sure to run dart-compile form inside a dart project directory."
+	exit 1
+fi
+
+
+# Quit the `find' after first find and print the result.
+DartFileExists=$(find bin/ -maxdepth 1 -name "*.dart" -print -quit)
+
+
+if [[ -z "$DartFileExists" ]]
+then
+	echo "The bin/ directory contains no .dart files."
+	exit 1
+fi
+
+
+if [[ ! -d "build/" ]]
+then
+	mkdir build
+	echo "Created build/ directory."
+fi
+
+
+for File in bin/*.dart
+do
+	echo "Compiling $File ..."
+
+	Filename=$(basename "$File")
+	dart compile exe "$File" -o "build/${Filename%.dart}"
+done
